@@ -26,21 +26,33 @@ class HomePageTest(TestCase):
     def test_home_page_can_save_a_POST_request(self):
         request = HttpRequest()
         request.method = 'POST'
-        request.POST['item_text'] = '신규 작업 아이템'
+        request.POST['item_text'] = 'A new list item'
 
         response = home_page(request)
 
-        self.assertIn('신규 작업 아이템', response.content.decode())
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+        self.assertIn('A new list item', response.content.decode())
         expected_html = render_to_string(
             'home.html',
             {
-                'new_item_text': '신규 작업 아이템',
+                'new_item_text': 'A new list item',
             }
         )
         self.assertEqual(
             re.sub(self.pattern_input_csrf, '', response.content.decode()),
             re.sub(self.pattern_input_csrf, '', expected_html)
         )
+
+    def test_home_page_only_saves_items_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
 
 
 class ItemModelTest(TestCase):
