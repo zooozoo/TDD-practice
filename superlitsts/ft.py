@@ -17,7 +17,6 @@ class NewVisitorTest():
         self.fail("Finish the test!")
 
 
-
 # browser = webdriver.Chrome()
 # browser.get('http://localhost:8000')
 #
